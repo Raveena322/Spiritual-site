@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-r from-slate-900 via-purple-900 to-black text-white py-12 mt-20 border-t border-purple-500/30 relative overflow-hidden">
+    <footer className="no-print bg-gradient-to-r from-slate-900 via-purple-900 to-black text-white py-12 mt-20 border-t border-purple-500/30 relative overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0">
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full blur-3xl opacity-10 animate-pulse"></div>
@@ -38,10 +38,10 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-bold text-pink-300">About</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-pink-200/80 hover:text-pink-300 transition-colors font-medium flex items-center gap-2"><span>✨</span> Our Mission</a></li>
-              <li><a href="#" className="text-pink-200/80 hover:text-pink-300 transition-colors font-medium flex items-center gap-2"><span>🙏</span> Our Vision</a></li>
-              <li><a href="#" className="text-pink-200/80 hover:text-pink-300 transition-colors font-medium flex items-center gap-2"><span>📖</span> Learn More</a></li>
-              <li><a href="#" className="text-pink-200/80 hover:text-pink-300 transition-colors font-medium flex items-center gap-2"><span>💬</span> Contact Us</a></li>
+              <li><a href="/#sessions" className="text-pink-200/80 hover:text-pink-300 transition-colors font-medium flex items-center gap-2"><span>✨</span> Our Mission</a></li>
+              <li><a href="/#sessions" className="text-pink-200/80 hover:text-pink-300 transition-colors font-medium flex items-center gap-2"><span>🙏</span> Our Vision</a></li>
+              <li><a href="/#sessions" className="text-pink-200/80 hover:text-pink-300 transition-colors font-medium flex items-center gap-2"><span>📖</span> Learn More</a></li>
+              <li><a href="/#sessions" className="text-pink-200/80 hover:text-pink-300 transition-colors font-medium flex items-center gap-2"><span>💬</span> Contact Us</a></li>
             </ul>
           </div>
 
@@ -70,11 +70,11 @@ const Footer = () => {
             <p className="text-pink-200 font-bold text-lg">© 2026 Raveena Choudhary | All Rights Reserved</p>
           </div>
           <div className="flex gap-6 text-xs text-pink-200/70 font-medium">
-            <a href="#" className="hover:text-pink-300 transition-colors">Privacy Policy</a>
+            <a href="/" className="hover:text-pink-300 transition-colors">Privacy Policy</a>
             <span>•</span>
-            <a href="#" className="hover:text-pink-300 transition-colors">Terms of Service</a>
+            <a href="/" className="hover:text-pink-300 transition-colors">Terms of Service</a>
             <span>•</span>
-            <a href="#" className="hover:text-pink-300 transition-colors">Cookie Policy</a>
+            <a href="/" className="hover:text-pink-300 transition-colors">Cookie Policy</a>
           </div>
         </div>
 

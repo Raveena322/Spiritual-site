@@ -25,7 +25,7 @@ exports.register = async (req, res) => {
     if (!dbConnected()) {
       return res.status(503).json({
         success: false,
-        message: 'Database not connected. In MongoDB Atlas go to Network Access and add your IP (or 0.0.0.0/0 for testing), then try again.',
+        message: 'Database not connected. Fix: (1) Atlas: cloud.mongodb.com → Network Access → Add IP. (2) Or use local MongoDB: in backend/.env set MONGODB_URI=mongodb://localhost:27017/spiritual-katha (see FIX_DATABASE.md). Restart backend after changing.',
       });
     }
     const { name, email, password, role } = req.body;
@@ -69,7 +69,7 @@ exports.register = async (req, res) => {
     const isDbError = error.message?.includes('buffering') || error.message?.includes('connection') || error.message?.includes('connect');
     res.status(isDbError ? 503 : 500).json({
       success: false,
-      message: isDbError ? 'Database not connected. Add your IP in MongoDB Atlas Network Access.' : error.message,
+      message: isDbError ? 'Database not connected. See FIX_DATABASE.md or set MONGODB_URI=mongodb://localhost:27017/spiritual-katha in backend/.env and restart.' : error.message,
     });
   }
 };
@@ -82,7 +82,7 @@ exports.login = async (req, res) => {
     if (!dbConnected()) {
       return res.status(503).json({
         success: false,
-        message: 'Database not connected. In MongoDB Atlas go to Network Access and add your IP (or 0.0.0.0/0 for testing), then try again.',
+        message: 'Database not connected. Fix: (1) Atlas: cloud.mongodb.com → Network Access → Add IP. (2) Or use local MongoDB: in backend/.env set MONGODB_URI=mongodb://localhost:27017/spiritual-katha (see FIX_DATABASE.md). Restart backend after changing.',
       });
     }
     const { email, password } = req.body;
@@ -135,7 +135,7 @@ exports.login = async (req, res) => {
     const isDbError = error.message?.includes('buffering') || error.message?.includes('connection') || error.message?.includes('connect');
     res.status(isDbError ? 503 : 500).json({
       success: false,
-      message: isDbError ? 'Database not connected. Add your IP in MongoDB Atlas Network Access.' : error.message,
+      message: isDbError ? 'Database not connected. See FIX_DATABASE.md or set MONGODB_URI=mongodb://localhost:27017/spiritual-katha in backend/.env and restart.' : error.message,
     });
   }
 };
@@ -148,7 +148,7 @@ exports.googleLogin = async (req, res) => {
     if (!dbConnected()) {
       return res.status(503).json({
         success: false,
-        message: 'Database not connected. In MongoDB Atlas go to Network Access and add your IP (or 0.0.0.0/0 for testing), then try again.',
+        message: 'Database not connected. Fix: (1) Atlas: cloud.mongodb.com → Network Access → Add IP. (2) Or use local MongoDB: in backend/.env set MONGODB_URI=mongodb://localhost:27017/spiritual-katha (see FIX_DATABASE.md). Restart backend after changing.',
       });
     }
     const { idToken, role } = req.body;
@@ -202,7 +202,7 @@ exports.googleLogin = async (req, res) => {
     const isDbError = error.message?.includes('buffering') || error.message?.includes('connection') || error.message?.includes('connect');
     res.status(isDbError ? 503 : 500).json({
       success: false,
-      message: isDbError ? 'Database not connected. Add your IP in MongoDB Atlas Network Access.' : (error.message || 'Google sign-in failed'),
+      message: isDbError ? 'Database not connected. See FIX_DATABASE.md or use local MongoDB (backend/.env).' : (error.message || 'Google sign-in failed'),
     });
   }
 };
@@ -215,7 +215,7 @@ exports.getMe = async (req, res) => {
     if (!dbConnected()) {
       return res.status(503).json({
         success: false,
-        message: 'Database not connected. Add your IP in MongoDB Atlas Network Access.',
+        message: 'Database not connected. See FIX_DATABASE.md or use local MongoDB (backend/.env).',
       });
     }
     const user = await User.findById(req.user._id);
@@ -228,7 +228,7 @@ exports.getMe = async (req, res) => {
     const isDbError = error.message?.includes('buffering') || error.message?.includes('connection');
     res.status(isDbError ? 503 : 500).json({
       success: false,
-      message: isDbError ? 'Database not connected. Add your IP in MongoDB Atlas Network Access.' : error.message,
+      message: isDbError ? 'Database not connected. See FIX_DATABASE.md or set MONGODB_URI=mongodb://localhost:27017/spiritual-katha in backend/.env and restart.' : error.message,
     });
   }
 };

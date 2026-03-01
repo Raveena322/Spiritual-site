@@ -3,45 +3,51 @@ const mongoose = require('mongoose');
 // Fail fast when not connected instead of buffering for 10s
 mongoose.set('bufferCommands', false);
 
-const connectDB = async () => {
-  const maxRetries = 4;
-  const timeoutMs = 20000;
+const LOCAL_URI = 'mongodb://localhost:27017/spiritual-katha';
+const timeoutMs = 15000;
 
-  if (!process.env.MONGODB_URI) {
-    console.error('MONGODB_URI is not set in .env');
+async function tryConnect(uri, label) {
+  return mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: timeoutMs,
+    connectTimeoutMS: timeoutMs,
+    bufferCommands: false,
+  }).then((conn) => {
+    console.log(`MongoDB Connected: ${conn.connection.host}${label ? ` (${label})` : ''}`);
+    return true;
+  }).catch((err) => {
+    console.error(label ? `  ${label}: ${err.message}` : err.message);
+    return false;
+  });
+}
+
+const connectDB = async () => {
+  const uri = process.env.MONGODB_URI;
+
+  if (!uri) {
+    console.error('MONGODB_URI is not set in backend/.env');
+    const ok = await tryConnect(LOCAL_URI, 'fallback local');
+    if (ok) return;
+    console.error('  -> Set MONGODB_URI in backend/.env or install MongoDB and run again.');
     return;
   }
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      // Don't force IPv4 - let Node try default (can fix some Atlas connections)
-      const conn = await mongoose.connect(process.env.MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        serverSelectionTimeoutMS: timeoutMs,
-        connectTimeoutMS: timeoutMs,
-        bufferCommands: false,
-      });
-      console.log(`MongoDB Connected: ${conn.connection.host}`);
-      return;
-    } catch (error) {
-      console.error(`MongoDB attempt ${attempt}/${maxRetries}:`, error.message);
-      if (error.message.includes('ENOTFOUND')) {
-        console.error('  -> DNS failed. Try different network or Google DNS (8.8.8.8).');
-      }
-      if (error.message.includes('whitelist') || error.message.includes('IP') || error.message.includes('network')) {
-        console.error('  -> IP may have changed, or Atlas cluster is PAUSED. In Atlas: Database -> cluster0 -> Resume (if paused).');
-      }
-      if (error.message.includes('auth') || error.name === 'MongoServerSelectionError') {
-        console.error('  -> Check: (1) Cluster is not paused (Atlas -> Resume). (2) DB user password is correct. (3) Network Access has your current IP.');
-      }
-      if (attempt === maxRetries) {
-        console.error('\nServer starting without DB. Fix connection then restart. Common fix: Atlas -> your cluster -> Resume.');
-        return;
-      }
-      await new Promise((r) => setTimeout(r, 3000));
-    }
+  // Try main URI (Atlas or custom) first
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const ok = await tryConnect(uri);
+    if (ok) return;
+    if (attempt < 3) await new Promise((r) => setTimeout(r, 2000));
   }
+
+  // If Atlas/couldn't connect and not already using localhost, try local MongoDB
+  if (!uri.includes('localhost') && !uri.includes('127.0.0.1')) {
+    console.log('\n  Trying local MongoDB (mongodb://localhost:27017)...');
+    const ok = await tryConnect(LOCAL_URI, 'local fallback');
+    if (ok) return;
+  }
+
+  console.error('\n  Fix: (1) Atlas: cloud.mongodb.com -> Network Access -> Add IP (or 0.0.0.0/0). (2) Or use local: set MONGODB_URI=mongodb://localhost:27017/spiritual-katha and run MongoDB.');
 };
 
 module.exports = connectDB;

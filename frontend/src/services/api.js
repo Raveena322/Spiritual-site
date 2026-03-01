@@ -48,6 +48,7 @@ export const slotsAPI = {
   getAll: () => api.get('/slots'),
   create: (data) => api.post('/slots', data),
   getMySlots: () => api.get('/slots/my-slots'),
+  getBookedDates: (id) => api.get(`/slots/${id}/booked-dates`),
   update: (id, data) => api.put(`/slots/${id}`, data),
   delete: (id) => api.delete(`/slots/${id}`),
 };
@@ -56,6 +57,8 @@ export const slotsAPI = {
 export const bookingsAPI = {
   create: (data) => api.post('/bookings', data),
   getMyBookings: () => api.get('/bookings'),
+  getById: (id) => api.get(`/bookings/${id}`),
+  getStats: () => api.get('/bookings/stats'),
   getPending: () => api.get('/bookings/pending'),
   approve: (id) => api.put(`/bookings/${id}/approve`),
   reject: (id) => api.put(`/bookings/${id}/reject`),

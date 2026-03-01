@@ -14,7 +14,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-purple-700 via-pink-600 to-orange-600 text-white shadow-2xl sticky top-0 z-50 backdrop-blur-md bg-opacity-95 border-b border-white/10">
+    <nav className="no-print bg-gradient-to-r from-purple-700 via-pink-600 to-orange-600 text-white shadow-2xl sticky top-0 z-50 backdrop-blur-md bg-opacity-95 border-b border-white/10">
       <div className="container mx-auto px-4 py-5">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center gap-3 group hover:opacity-90 transition-opacity">

@@ -4,6 +4,8 @@ const {
   createBooking,
   getMyBookings,
   getPendingBookings,
+  getBookingById,
+  getGuruStats,
   approveBooking,
   rejectBooking,
 } = require('../controllers/bookingController');
@@ -17,8 +19,10 @@ router.use(protect);
 router.post('/', roleCheck('devotee'), createBooking);
 router.get('/', getMyBookings);
 
-// Guru routes
+// Guru routes (stats before :id)
+router.get('/stats', roleCheck('guru'), getGuruStats);
 router.get('/pending', roleCheck('guru'), getPendingBookings);
+router.get('/:id', getBookingById);
 router.put('/:id/approve', roleCheck('guru'), approveBooking);
 router.put('/:id/reject', roleCheck('guru'), rejectBooking);
 

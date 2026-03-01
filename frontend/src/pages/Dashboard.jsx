@@ -38,6 +38,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('bookings');
   const [slots, setSlots] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [stats, setStats] = useState({ total: 0, pending: 0, upcoming: 0, past: 0 });
   const [loading, setLoading] = useState(false);
   const [showSlotForm, setShowSlotForm] = useState(false);
   const [slotForm, setSlotForm] = useState({
@@ -45,6 +46,9 @@ const Dashboard = () => {
     toDate: '',
     state: '',
     district: '',
+    city: '',
+    fullAddress: '',
+    mapsLink: '',
     availableGranths: [],
   });
   const [availableDistricts, setAvailableDistricts] = useState([]);
@@ -56,6 +60,18 @@ const Dashboard = () => {
       loadBookings();
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const res = await bookingsAPI.getStats();
+        setStats(res.data.data || { total: 0, pending: 0, upcoming: 0, past: 0 });
+      } catch {
+        // ignore
+      }
+    };
+    loadStats();
+  }, [activeTab, bookings.length]);
 
   // Debug: Log granths on component mount
   useEffect(() => {
@@ -161,6 +177,9 @@ const Dashboard = () => {
         toDate: slotForm.toDate,
         state: String(slotForm.state).trim(),
         district: String(slotForm.district).trim(),
+        city: slotForm.city ? String(slotForm.city).trim() : undefined,
+        fullAddress: slotForm.fullAddress ? String(slotForm.fullAddress).trim() : undefined,
+        mapsLink: slotForm.mapsLink ? String(slotForm.mapsLink).trim() : undefined,
         availableGranths: slotForm.availableGranths,
       };
       
@@ -176,6 +195,9 @@ const Dashboard = () => {
         toDate: '',
         state: '',
         district: '',
+        city: '',
+        fullAddress: '',
+        mapsLink: '',
         availableGranths: [],
       });
       setAvailableDistricts([]);
@@ -213,6 +235,27 @@ const Dashboard = () => {
     }
   };
 
+  const handleDeleteSlot = async (slotId, slotSummary) => {
+    const confirmed = window.confirm(
+      `Remove this available slot?\n\n${slotSummary}\n\nThis cannot be undone. Existing bookings for this slot will remain, but the slot will no longer appear for new bookings.`
+    );
+    if (!confirmed) return;
+    try {
+      await slotsAPI.delete(slotId);
+      loadSlots();
+      const loadStats = async () => {
+        try {
+          const res = await bookingsAPI.getStats();
+          setStats(res.data.data || { total: 0, pending: 0, upcoming: 0, past: 0 });
+        } catch { /* ignore */ }
+      };
+      loadStats();
+      alert('Slot removed successfully.');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Could not delete slot.');
+    }
+  };
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -245,6 +288,26 @@ const Dashboard = () => {
         {/* Daily Spiritual Quote */}
         <div className="mb-16 animate-fadeIn">
           <DailyQuote />
+        </div>
+
+        {/* Stats cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+          <div className="bg-gradient-to-br from-slate-800/80 to-purple-800/40 rounded-2xl p-5 md:p-6 border border-purple-500/30">
+            <div className="text-xs font-bold text-purple-200 uppercase tracking-wide mb-1">Total Bookings</div>
+            <div className="text-2xl md:text-3xl font-black text-white">{stats.total}</div>
+          </div>
+          <div className="bg-gradient-to-br from-amber-800/40 to-yellow-800/30 rounded-2xl p-5 md:p-6 border border-amber-500/30">
+            <div className="text-xs font-bold text-amber-200 uppercase tracking-wide mb-1">Pending</div>
+            <div className="text-2xl md:text-3xl font-black text-white">{stats.pending}</div>
+          </div>
+          <div className="bg-gradient-to-br from-emerald-800/40 to-green-800/30 rounded-2xl p-5 md:p-6 border border-emerald-500/30">
+            <div className="text-xs font-bold text-emerald-200 uppercase tracking-wide mb-1">Upcoming</div>
+            <div className="text-2xl md:text-3xl font-black text-white">{stats.upcoming}</div>
+          </div>
+          <div className="bg-gradient-to-br from-slate-700/60 to-slate-800/40 rounded-2xl p-5 md:p-6 border border-slate-500/30">
+            <div className="text-xs font-bold text-slate-200 uppercase tracking-wide mb-1">Past completed</div>
+            <div className="text-2xl md:text-3xl font-black text-white">{stats.past}</div>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -427,6 +490,47 @@ const Dashboard = () => {
                       </select>
                     </div>
                   </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold text-pink-200 mb-3 flex items-center gap-2">
+                        <span>🏙️</span> City (optional)
+                      </label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={slotForm.city}
+                        onChange={handleSlotFormChange}
+                        placeholder="e.g. Haridwar"
+                        className="w-full px-5 py-3 bg-slate-800 border-2 border-purple-400/50 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all text-white font-medium placeholder-gray-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-pink-200 mb-3 flex items-center gap-2">
+                        <span>🔗</span> Google Maps link (optional)
+                      </label>
+                      <input
+                        type="url"
+                        name="mapsLink"
+                        value={slotForm.mapsLink}
+                        onChange={handleSlotFormChange}
+                        placeholder="https://maps.google.com/..."
+                        className="w-full px-5 py-3 bg-slate-800 border-2 border-purple-400/50 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all text-white font-medium placeholder-gray-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-pink-200 mb-3 flex items-center gap-2">
+                      <span>📍</span> Full address (optional)
+                    </label>
+                    <input
+                      type="text"
+                      name="fullAddress"
+                      value={slotForm.fullAddress}
+                      onChange={handleSlotFormChange}
+                      placeholder="Street, area, landmark"
+                      className="w-full px-5 py-3 bg-slate-800 border-2 border-purple-400/50 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all text-white font-medium placeholder-gray-500"
+                    />
+                  </div>
                   <div className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 p-6 rounded-2xl border-2 border-purple-400/30 mb-6 hover:border-purple-400/60 transition-colors">
                     <label className="block text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-orange-300 mb-4 flex items-center gap-3">
                       <span className="text-3xl">📖</span> 
@@ -578,8 +682,11 @@ const Dashboard = () => {
                         <div className="p-3 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-400/20">
                           <div className="text-xs font-semibold text-purple-300 uppercase tracking-wide mb-1">📍 Location</div>
                           <div className="text-sm font-bold text-purple-100">
-                            {slot.district ? `${slot.district}, ${slot.state}` : slot.location || 'Not specified'}
+                            {slot.fullAddress || (slot.district ? `${slot.district}, ${slot.state}` : null) || slot.location || 'Not specified'}
                           </div>
+                          {slot.mapsLink && (
+                            <a href={slot.mapsLink} target="_blank" rel="noopener noreferrer" className="text-pink-300 hover:underline text-xs mt-1 inline-block">Maps →</a>
+                          )}
                         </div>
                         <div className="p-3 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 rounded-xl border border-orange-400/20">
                           <div className="text-xs font-semibold text-orange-300 uppercase tracking-wide mb-2">📖 Granths</div>
@@ -594,6 +701,16 @@ const Dashboard = () => {
                             ))}
                           </div>
                         </div>
+                      </div>
+                      <div className="mt-6 pt-4 border-t border-purple-500/20">
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSlot(slot._id, `${formatDate(slot.fromDate)} – ${formatDate(slot.toDate)} (${slot.district || slot.location || 'slot'})`)}
+                          className="w-full py-3 rounded-xl font-bold text-sm text-red-200 bg-red-900/40 border border-red-500/50 hover:bg-red-800/50 hover:border-red-400/60 transition-all touch-manipulation min-h-[44px]"
+                          title="Remove this slot if there is any inconvenience"
+                        >
+                          🗑️ Remove slot (inconvenience / cancel availability)
+                        </button>
                       </div>
                     </div>
                   </div>

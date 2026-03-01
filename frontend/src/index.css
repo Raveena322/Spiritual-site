@@ -114,3 +114,16 @@ select option:disabled {
   color: #9ca3af;
 }
 
+/* Print: hide nav/footer and show only confirmation content */
+@media print {
+  nav,
+  footer,
+  .no-print {
+    visibility: hidden !important;
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
+

@@ -4,14 +4,16 @@ const {
   createSlot,
   getAllSlots,
   getMySlots,
+  getBookedDates,
   updateSlot,
   deleteSlot,
 } = require('../controllers/slotController');
 const protect = require('../middleware/auth');
 const roleCheck = require('../middleware/roleCheck');
 
-// Public route
+// Public routes
 router.get('/', getAllSlots);
+router.get('/:id/booked-dates', getBookedDates);
 
 // Add logging middleware
 router.use((req, res, next) => {

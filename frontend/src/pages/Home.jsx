@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { slotsAPI } from '../services/api';
 import SlotCard from '../components/SlotCard';
 import GitaShlokas from '../components/GitaShlokas';
+import AvailabilityCalendar from '../components/AvailabilityCalendar';
 import { AuthContext } from '../context/AuthContext';
 import { getAllStates, getDistricts } from '../data/indianLocations';
 
@@ -12,6 +13,8 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ state: '', district: '', granth: '' });
   const [availableDistricts, setAvailableDistricts] = useState([]);
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'calendar'
+  const [calendarSelectedDate, setCalendarSelectedDate] = useState(null);
 
   useEffect(() => {
     loadSlots();
@@ -28,13 +31,25 @@ const Home = () => {
     }
   };
 
-  const filteredSlots = slots.filter((slot) => {
+  const filteredByFilter = slots.filter((slot) => {
     const stateMatch = !filter.state || slot.state === filter.state;
     const districtMatch = !filter.district || slot.district === filter.district;
     const granthMatch =
       !filter.granth || slot.availableGranths.includes(filter.granth);
     return stateMatch && districtMatch && granthMatch;
   });
+
+  const filteredSlots = calendarSelectedDate
+    ? filteredByFilter.filter((slot) => {
+        const d = new Date(calendarSelectedDate);
+        d.setHours(0, 0, 0, 0);
+        const from = new Date(slot.fromDate);
+        from.setHours(0, 0, 0, 0);
+        const to = new Date(slot.toDate);
+        to.setHours(23, 59, 59, 999);
+        return d >= from && d <= to;
+      })
+    : filteredByFilter;
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -168,12 +183,52 @@ const Home = () => {
       <div className="container mx-auto px-4 pb-16 relative z-20">
         {/* Filters & Slots */}
         <div id="sessions" className="scroll-mt-8">
-        <div className="bg-gradient-to-br from-slate-800/50 to-purple-800/30 backdrop-blur-xl rounded-3xl shadow-2xl p-10 mb-16 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 animate-fadeIn">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-2 h-10 bg-gradient-to-b from-pink-500 to-orange-500 rounded-full shadow-lg"></div>
-            <h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-orange-300">Find Your Divine Session</h2>
+        <div className="bg-gradient-to-br from-slate-800/50 to-purple-800/30 backdrop-blur-xl rounded-3xl shadow-2xl p-6 md:p-10 mb-8 md:mb-16 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 animate-fadeIn">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
+            <div className="flex items-center gap-4">
+              <div className="w-2 h-10 bg-gradient-to-b from-pink-500 to-orange-500 rounded-full shadow-lg"></div>
+              <h2 className="text-2xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-orange-300">Find Your Divine Session</h2>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                className={`px-4 py-3 rounded-xl font-bold text-sm md:text-base min-h-[48px] touch-manipulation transition-all ${
+                  viewMode === 'list'
+                    ? 'bg-pink-600 text-white shadow-lg'
+                    : 'bg-slate-700/50 text-pink-200 hover:bg-slate-700/70'
+                }`}
+              >
+                📋 List
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('calendar')}
+                className={`px-4 py-3 rounded-xl font-bold text-sm md:text-base min-h-[48px] touch-manipulation transition-all ${
+                  viewMode === 'calendar'
+                    ? 'bg-pink-600 text-white shadow-lg'
+                    : 'bg-slate-700/50 text-pink-200 hover:bg-slate-700/70'
+                }`}
+              >
+                📅 Calendar
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {viewMode === 'calendar' && (
+            <div className="mb-8">
+              <AvailabilityCalendar
+                slots={filteredByFilter}
+                selectedDate={calendarSelectedDate}
+                onSelectDate={setCalendarSelectedDate}
+              />
+              {calendarSelectedDate && (
+                <p className="mt-3 text-pink-200 text-sm">
+                  Showing slots for {calendarSelectedDate.toLocaleDateString()}. Click a day to filter.
+                </p>
+              )}
+            </div>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             <div className="space-y-3">
               <label className="block text-lg font-bold text-pink-200 flex items-center gap-3">
                 <span className="text-2xl">🗺️</span> Select State

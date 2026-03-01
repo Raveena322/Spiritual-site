@@ -32,6 +32,18 @@ const availableSlotSchema = new mongoose.Schema({
     trim: true,
     minlength: [1, 'District cannot be empty'],
   },
+  city: {
+    type: String,
+    trim: true,
+  },
+  fullAddress: {
+    type: String,
+    trim: true,
+  },
+  mapsLink: {
+    type: String,
+    trim: true,
+  },
   location: {
     type: String,
     required: false, // Keep for backward compatibility

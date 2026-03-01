@@ -1,4 +1,5 @@
 const AvailableSlot = require('../models/AvailableSlot');
+const Booking = require('../models/Booking');
 
 // @desc    Create new slot
 // @route   POST /api/slots
@@ -23,6 +24,9 @@ exports.createSlot = async (req, res) => {
     const toDate = req.body.toDate;
     const state = req.body.state;
     const district = req.body.district;
+    const city = req.body.city;
+    const fullAddress = req.body.fullAddress;
+    const mapsLink = req.body.mapsLink;
     const location = req.body.location;
     const availableGranths = req.body.availableGranths;
     
@@ -102,7 +106,10 @@ exports.createSlot = async (req, res) => {
       toDate: new Date(toDate),
       state: processedState,
       district: processedDistrict,
-      location: location || `${processedDistrict}, ${processedState}`,
+      city: city ? String(city).trim() : undefined,
+      fullAddress: fullAddress ? String(fullAddress).trim() : undefined,
+      mapsLink: mapsLink ? String(mapsLink).trim() : undefined,
+      location: location || fullAddress || `${processedDistrict}, ${processedState}`,
       availableGranths: Array.isArray(availableGranths) ? availableGranths : [availableGranths],
     };
 
@@ -245,6 +252,38 @@ exports.updateSlot = async (req, res) => {
     res.status(200).json({
       success: true,
       data: slot,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Get booked date ranges for a slot (for calendar - public)
+// @route   GET /api/slots/:id/booked-dates
+// @access  Public
+exports.getBookedDates = async (req, res) => {
+  try {
+    const slot = await AvailableSlot.findById(req.params.id);
+    if (!slot || !slot.isActive) {
+      return res.status(404).json({
+        success: false,
+        message: 'Slot not found or not available',
+      });
+    }
+    const bookings = await Booking.find({
+      slotId: slot._id,
+      status: 'Approved',
+    }).select('fromDate toDate');
+    const bookedRanges = bookings.map((b) => ({
+      fromDate: b.fromDate,
+      toDate: b.toDate,
+    }));
+    res.status(200).json({
+      success: true,
+      data: bookedRanges,
     });
   } catch (error) {
     res.status(500).json({

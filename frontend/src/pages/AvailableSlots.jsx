@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { bookingsAPI } from '../services/api';
+import { bookingsAPI, slotsAPI } from '../services/api';
 import { getAllStates, getDistricts } from '../data/indianLocations';
+import AvailabilityCalendar from '../components/AvailabilityCalendar';
 
 const AvailableSlots = () => {
   const location = useLocation();
@@ -13,9 +14,15 @@ const AvailableSlots = () => {
     toDate: '',
     state: slot?.state || '',
     district: slot?.district || '',
+    fullAddress: slot?.fullAddress || '',
+    city: slot?.city || '',
+    mapsLink: slot?.mapsLink || '',
     message: '',
+    purposeOfKatha: '',
+    specialRequests: '',
   });
   const [loading, setLoading] = useState(false);
+  const [bookedRanges, setBookedRanges] = useState([]);
   const [availableDistricts, setAvailableDistricts] = useState(
     slot?.state ? getDistricts(slot.state) : []
   );
@@ -25,6 +32,14 @@ const AvailableSlots = () => {
       navigate('/');
     }
   }, [slot, navigate]);
+
+  useEffect(() => {
+    if (!slot?._id) return;
+    slotsAPI
+      .getBookedDates(slot._id)
+      .then((res) => setBookedRanges(res.data.data || []))
+      .catch(() => setBookedRanges([]));
+  }, [slot?._id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,12 +64,17 @@ const AvailableSlots = () => {
     setLoading(true);
 
     try {
-      await bookingsAPI.create({
+      const res = await bookingsAPI.create({
         slotId: slot._id,
         ...formData,
       });
-      alert('Booking request submitted successfully!');
-      navigate('/bookings');
+      const bookingId = res.data.data?._id;
+      if (bookingId) {
+        navigate(`/bookings/confirmation/${bookingId}`, { replace: true });
+      } else {
+        alert('Booking request submitted successfully!');
+        navigate('/bookings');
+      }
     } catch (error) {
       alert(error.response?.data?.message || 'Error creating booking');
     } finally {
@@ -74,7 +94,7 @@ const AvailableSlots = () => {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
 
-      <div className="container mx-auto px-4 py-12 relative z-10">
+      <div className="container mx-auto px-4 py-6 md:py-12 relative z-10 overflow-x-hidden">
         <div className="mb-12 text-center animate-fadeIn space-y-4">
           <div className="text-7xl mb-4 drop-shadow-2xl" style={{ animationDuration: '2s' }}>✨</div>
           <h1 className="text-6xl md:text-7xl font-black bg-gradient-to-r from-pink-300 via-purple-300 to-orange-300 bg-clip-text text-transparent mb-2">
@@ -103,18 +123,33 @@ const AvailableSlots = () => {
               <div className="p-5 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 rounded-xl border border-amber-400/30 hover:border-amber-400/60 transition-colors">
                 <div className="text-xs font-bold text-amber-200 uppercase tracking-wide mb-2">📍 Location</div>
                 <div className="text-sm font-bold text-pink-100">
-                  {slot.district ? `${slot.district}, ${slot.state}` : slot.location || 'Not specified'}
+                  {slot.fullAddress || (slot.district ? `${slot.district}, ${slot.state}` : null) || slot.location || 'Not specified'}
                 </div>
+                {slot.mapsLink && (
+                  <a href={slot.mapsLink} target="_blank" rel="noopener noreferrer" className="text-pink-300 hover:underline text-xs mt-1 inline-block">
+                    Open in Maps →
+                  </a>
+                )}
               </div>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-gradient-to-br from-slate-800/50 to-purple-800/30 backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-purple-500/30 animate-fadeIn">
+          <form onSubmit={handleSubmit} className="bg-gradient-to-br from-slate-800/50 to-purple-800/30 backdrop-blur-xl rounded-3xl shadow-2xl p-6 md:p-10 border border-purple-500/30 animate-fadeIn overflow-x-hidden">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-2 h-10 bg-gradient-to-b from-pink-500 to-orange-500 rounded-full shadow-lg"></div>
               <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-orange-300">Booking Details</h2>
             </div>
 
+            {bookedRanges.length > 0 && (
+              <div className="mb-6 p-4 bg-amber-500/20 border border-amber-400/40 rounded-xl">
+                <p className="text-amber-200 text-sm font-semibold mb-2">📅 Some dates in this slot are already booked. Choose dates that are still available (green on calendar).</p>
+                <AvailabilityCalendar
+                  slots={[slot]}
+                  bookedRanges={bookedRanges}
+                  className="max-w-sm"
+                />
+              </div>
+            )}
             <div className="space-y-7">
               <div>
                 <label className="block text-sm font-bold text-pink-200 mb-3 flex items-center gap-2">
@@ -217,15 +252,41 @@ const AvailableSlots = () => {
 
               <div>
                 <label className="block text-sm font-bold text-pink-200 mb-3 flex items-center gap-2">
+                  <span className="text-lg">🙏</span> Purpose of katha (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="purposeOfKatha"
+                  value={formData.purposeOfKatha}
+                  onChange={handleChange}
+                  placeholder="e.g. Housewarming, peace, health..."
+                  className="w-full px-5 py-3.5 bg-gradient-to-br from-purple-700/30 to-pink-700/20 border-2 border-purple-400/50 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all text-white font-medium placeholder-gray-400 min-h-[48px] touch-manipulation"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-pink-200 mb-3 flex items-center gap-2">
+                  <span className="text-lg">💬</span> Special requests (Optional)
+                </label>
+                <textarea
+                  name="specialRequests"
+                  value={formData.specialRequests}
+                  onChange={handleChange}
+                  rows="3"
+                  className="w-full px-5 py-3.5 bg-gradient-to-br from-purple-700/30 to-pink-700/20 border-2 border-purple-400/50 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all text-white font-medium placeholder-gray-400 hover:border-pink-400/70 resize-none shadow-lg min-h-[48px]"
+                  placeholder="Any special requests for the Guru..."
+                />
+                </div>
+              <div>
+                <label className="block text-sm font-bold text-pink-200 mb-3 flex items-center gap-2">
                   <span className="text-lg">💬</span> Message (Optional)
                 </label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
-                  rows="5"
-                  className="w-full px-5 py-3.5 bg-gradient-to-br from-purple-700/30 to-pink-700/20 border-2 border-purple-400/50 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all text-white font-medium placeholder-gray-400 hover:border-pink-400/70 resize-none shadow-lg"
-                  placeholder="Any special requests or messages for the Guru..."
+                  rows="3"
+                  className="w-full px-5 py-3.5 bg-gradient-to-br from-purple-700/30 to-pink-700/20 border-2 border-purple-400/50 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all text-white font-medium placeholder-gray-400 hover:border-pink-400/70 resize-none shadow-lg min-h-[48px]"
+                  placeholder="Any other message..."
                 ></textarea>
               </div>
 
@@ -240,7 +301,7 @@ const AvailableSlots = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-gradient-to-r from-pink-600 via-purple-600 to-orange-600 text-white py-4 rounded-xl hover:from-pink-700 hover:via-purple-700 hover:to-orange-700 transition-all duration-300 font-bold text-lg shadow-2xl hover:shadow-pink-500/50 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group border border-pink-400/50"
+                  className="flex-1 min-h-[48px] md:py-4 py-3 bg-gradient-to-r from-pink-600 via-purple-600 to-orange-600 text-white rounded-xl hover:from-pink-700 hover:via-purple-700 hover:to-orange-700 transition-all duration-300 font-bold text-base md:text-lg shadow-2xl hover:shadow-pink-500/50 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group border border-pink-400/50 touch-manipulation"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {loading ? (

@@ -33,10 +33,42 @@ app.use('/api', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to DB (retries 3x), then start server so the site always runs
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+// Daily reminder: send email to devotees whose katha starts tomorrow
+function runReminderJob() {
+  const mongoose = require('mongoose');
+  if (mongoose.connection.readyState !== 1) return;
+  const Booking = require('./models/Booking');
+  const emailService = require('./utils/emailService');
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  const dayAfter = new Date(tomorrow);
+  dayAfter.setDate(dayAfter.getDate() + 1);
+  Booking.find({
+    status: 'Approved',
+    fromDate: { $gte: tomorrow, $lt: dayAfter },
+  })
+    .populate('devoteeId', 'name email')
+    .then((bookings) => {
+      bookings.forEach((b) => {
+        if (b.devoteeId && b.devoteeId.email) {
+          emailService.sendReminderToDevotee(b, b.devoteeId.email, b.devoteeId.name).catch(() => {});
+        }
+      });
+    })
+    .catch((err) => console.error('[Reminder] job error:', err.message));
+}
+
+// Start server immediately so frontend can always reach it (no "Cannot reach server")
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
+// Run reminder once per day (every 24h) — only when DB is connected (checked inside job)
+setInterval(runReminderJob, 24 * 60 * 60 * 1000);
+setTimeout(runReminderJob, 60 * 1000);
+
+// Connect to DB in background (retries 4x). Auth/slots/bookings return 503 if DB not ready.
+connectDB().then(() => {
+  console.log('Backend ready: MongoDB connected.');
+}).catch(() => {});
 

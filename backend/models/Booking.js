@@ -41,6 +41,11 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     required: false, // Keep for backward compatibility
   },
+  fullAddress: { type: String, trim: true },
+  city: { type: String, trim: true },
+  mapsLink: { type: String, trim: true },
+  purposeOfKatha: { type: String, trim: true },
+  specialRequests: { type: String, trim: true },
   status: {
     type: String,
     enum: ['Pending', 'Approved', 'Rejected'],

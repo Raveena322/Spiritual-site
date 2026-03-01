@@ -1,13 +1,27 @@
 const Booking = require('../models/Booking');
 const AvailableSlot = require('../models/AvailableSlot');
+const emailService = require('../utils/emailService');
 
 // @desc    Create new booking
 // @route   POST /api/bookings
 // @access  Private (Devotee)
 exports.createBooking = async (req, res) => {
   try {
-    const { slotId, selectedGranth, fromDate, toDate, state, district, location, message } =
-      req.body;
+    const {
+      slotId,
+      selectedGranth,
+      fromDate,
+      toDate,
+      state,
+      district,
+      location,
+      fullAddress,
+      city,
+      mapsLink,
+      message,
+      purposeOfKatha,
+      specialRequests,
+    } = req.body;
 
     // Verify slot exists and is active
     const slot = await AvailableSlot.findById(slotId);
@@ -55,17 +69,106 @@ exports.createBooking = async (req, res) => {
       toDate,
       state: state || slot.state,
       district: district || slot.district,
-      location: location || (slot.state && slot.district ? `${slot.district}, ${slot.state}` : location),
+      location: location || (slot.state && slot.district ? `${slot.district}, ${slot.state}` : slot.location),
+      fullAddress: fullAddress || slot.fullAddress,
+      city: city || slot.city,
+      mapsLink: mapsLink || slot.mapsLink,
       message,
+      purposeOfKatha: purposeOfKatha || undefined,
+      specialRequests: specialRequests || undefined,
     });
 
     // Populate slot and devotee info
-    await booking.populate('slotId', 'fromDate toDate location availableGranths');
+    await booking.populate('slotId', 'fromDate toDate location state district fullAddress city mapsLink availableGranths');
     await booking.populate('devoteeId', 'name email');
+
+    // Notify guru of new booking (fire-and-forget)
+    const slotWithGuru = await AvailableSlot.findById(slotId).populate('guruId', 'name email');
+    if (slotWithGuru && slotWithGuru.guruId && slotWithGuru.guruId.email) {
+      const slotSummary = `${new Date(slot.fromDate).toLocaleDateString()} - ${new Date(slot.toDate).toLocaleDateString()}`;
+      emailService.sendBookingReceivedToGuru(
+        booking,
+        slotWithGuru.guruId.email,
+        booking.devoteeId.name,
+        slotSummary
+      ).catch((err) => console.error('[Email] sendBookingReceivedToGuru failed:', err.message));
+    }
 
     res.status(201).json({
       success: true,
       data: booking,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Get single booking by ID (owner or guru of slot only)
+// @route   GET /api/bookings/:id
+// @access  Private
+exports.getBookingById = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id)
+      .populate('devoteeId', 'name email')
+      .populate('slotId');
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found',
+      });
+    }
+    const isDevotee = booking.devoteeId._id.toString() === req.user._id.toString();
+    if (isDevotee) {
+      return res.status(200).json({ success: true, data: booking });
+    }
+    const slotId = booking.slotId._id || booking.slotId;
+    const slot = await AvailableSlot.findById(slotId);
+    const isGuru = slot && slot.guruId.toString() === req.user._id.toString();
+    if (!isGuru) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to view this booking',
+      });
+    }
+    res.status(200).json({ success: true, data: booking });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Get guru dashboard stats (counts)
+// @route   GET /api/bookings/stats
+// @access  Private (Guru only)
+exports.getGuruStats = async (req, res) => {
+  try {
+    const slots = await AvailableSlot.find({ guruId: req.user._id });
+    const slotIds = slots.map((s) => s._id);
+    const now = new Date();
+
+    const [total, pending, upcoming, past] = await Promise.all([
+      Booking.countDocuments({ slotId: { $in: slotIds } }),
+      Booking.countDocuments({ slotId: { $in: slotIds }, status: 'Pending' }),
+      Booking.countDocuments({
+        slotId: { $in: slotIds },
+        status: 'Approved',
+        fromDate: { $gte: now },
+      }),
+      Booking.countDocuments({
+        slotId: { $in: slotIds },
+        status: 'Approved',
+        toDate: { $lt: now },
+      }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: { total, pending, upcoming, past },
     });
   } catch (error) {
     res.status(500).json({
@@ -88,12 +191,12 @@ exports.getMyBookings = async (req, res) => {
       const slotIds = slots.map((slot) => slot._id);
       bookings = await Booking.find({ slotId: { $in: slotIds } })
         .populate('devoteeId', 'name email')
-        .populate('slotId', 'fromDate toDate state district location')
+        .populate('slotId', 'fromDate toDate state district location fullAddress city mapsLink')
         .sort({ createdAt: -1 });
     } else {
       // Devotee sees their own bookings
       bookings = await Booking.find({ devoteeId: req.user._id })
-        .populate('slotId', 'fromDate toDate state district location availableGranths')
+        .populate('slotId', 'fromDate toDate state district location fullAddress city mapsLink availableGranths')
         .sort({ createdAt: -1 });
     }
 
@@ -123,7 +226,7 @@ exports.getPendingBookings = async (req, res) => {
       status: 'Pending',
     })
       .populate('devoteeId', 'name email')
-      .populate('slotId', 'fromDate toDate state district location')
+      .populate('slotId', 'fromDate toDate state district location fullAddress city mapsLink')
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -166,7 +269,16 @@ exports.approveBooking = async (req, res) => {
     await booking.save();
 
     await booking.populate('devoteeId', 'name email');
-    await booking.populate('slotId', 'fromDate toDate location');
+    await booking.populate('slotId', 'fromDate toDate location state district fullAddress city mapsLink');
+
+    if (booking.devoteeId && booking.devoteeId.email) {
+      emailService.sendBookingStatusToDevotee(
+        booking,
+        booking.devoteeId.email,
+        booking.devoteeId.name,
+        'Approved'
+      ).catch((err) => console.error('[Email] sendBookingStatusToDevotee failed:', err.message));
+    }
 
     res.status(200).json({
       success: true,
@@ -207,7 +319,16 @@ exports.rejectBooking = async (req, res) => {
     await booking.save();
 
     await booking.populate('devoteeId', 'name email');
-    await booking.populate('slotId', 'fromDate toDate location');
+    await booking.populate('slotId', 'fromDate toDate location state district fullAddress city mapsLink');
+
+    if (booking.devoteeId && booking.devoteeId.email) {
+      emailService.sendBookingStatusToDevotee(
+        booking,
+        booking.devoteeId.email,
+        booking.devoteeId.name,
+        'Rejected'
+      ).catch((err) => console.error('[Email] sendBookingStatusToDevotee failed:', err.message));
+    }
 
     res.status(200).json({
       success: true,

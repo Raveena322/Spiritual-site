@@ -67,11 +67,16 @@ const SlotCard = ({ slot }) => {
             
             <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-400/30 hover:border-purple-400/60 transition-colors">
               <span className="text-3xl">📍</span>
-              <div>
+              <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-purple-200 uppercase tracking-wide mb-1">Location</div>
                 <div className="text-sm font-bold text-pink-100">
-                  {slot.district ? `${slot.district}, ${slot.state}` : slot.location || 'Not specified'}
+                  {slot.fullAddress || (slot.district ? `${slot.district}, ${slot.state}` : null) || slot.location || 'Not specified'}
                 </div>
+                {slot.mapsLink && (
+                  <a href={slot.mapsLink} target="_blank" rel="noopener noreferrer" className="text-pink-300 hover:underline text-xs mt-1 inline-block break-all">
+                    Open in Google Maps →
+                  </a>
+                )}
               </div>
             </div>
             

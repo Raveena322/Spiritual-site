@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Bookings from './pages/Bookings';
+import BookingConfirmation from './pages/BookingConfirmation';
 import AvailableSlots from './pages/AvailableSlots';
 
 const PrivateRoute = ({ children, requireGuru = false }) => {
@@ -55,6 +56,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Bookings />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/bookings/confirmation/:id"
+              element={
+                <PrivateRoute>
+                  <BookingConfirmation />
                 </PrivateRoute>
               }
             />

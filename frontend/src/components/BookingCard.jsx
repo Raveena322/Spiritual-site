@@ -9,17 +9,6 @@ const BookingCard = ({ booking, onApprove, onReject, showActions = false }) => {
     });
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Approved':
-        return 'bg-green-100 text-green-800';
-      case 'Rejected':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-yellow-100 text-yellow-800';
-    }
-  };
-
   return (
     <div className="group relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl blur-xl"></div>
@@ -70,9 +59,20 @@ const BookingCard = ({ booking, onApprove, onReject, showActions = false }) => {
             <div className="p-4 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 rounded-xl border border-amber-400/30 hover:border-amber-400/60 transition-colors">
               <div className="text-xs font-bold text-amber-200 uppercase tracking-wide mb-2">📍 Location</div>
               <div className="text-sm font-bold text-pink-100">
-                {booking.district ? `${booking.district}, ${booking.state}` : booking.location || 'Not specified'}
+                {booking.fullAddress || (booking.district ? `${booking.district}, ${booking.state}` : null) || booking.location || 'Not specified'}
               </div>
+              {booking.mapsLink && (
+                <a href={booking.mapsLink} target="_blank" rel="noopener noreferrer" className="text-pink-300 hover:underline text-xs mt-1 inline-block">Open in Maps →</a>
+              )}
             </div>
+
+            {(booking.purposeOfKatha || booking.specialRequests) && (
+              <div className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl border border-green-400/30">
+                <div className="text-xs font-bold text-green-200 uppercase tracking-wide mb-2">🙏 Purpose / Requests</div>
+                {booking.purposeOfKatha && <p className="text-sm text-pink-100 mb-1">{booking.purposeOfKatha}</p>}
+                {booking.specialRequests && <p className="text-sm text-pink-100">{booking.specialRequests}</p>}
+              </div>
+            )}
             
             {booking.message && (
               <div className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl border border-green-400/30 hover:border-green-400/60 transition-colors">
