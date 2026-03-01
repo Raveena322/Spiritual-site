@@ -59,16 +59,18 @@ function runReminderJob() {
     .catch((err) => console.error('[Reminder] job error:', err.message));
 }
 
-// Start server immediately so frontend can always reach it (no "Cannot reach server")
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-// Run reminder once per day (every 24h) — only when DB is connected (checked inside job)
-setInterval(runReminderJob, 24 * 60 * 60 * 1000);
-setTimeout(runReminderJob, 60 * 1000);
+// When run directly (e.g. node server.js), start listening and connect DB.
+// When required (e.g. Vercel serverless), only export the app.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+  setInterval(runReminderJob, 24 * 60 * 60 * 1000);
+  setTimeout(runReminderJob, 60 * 1000);
+  connectDB().then(() => {
+    console.log('Backend ready: MongoDB connected.');
+  }).catch(() => {});
+}
 
-// Connect to DB in background (retries 4x). Auth/slots/bookings return 503 if DB not ready.
-connectDB().then(() => {
-  console.log('Backend ready: MongoDB connected.');
-}).catch(() => {});
+module.exports = app;
 

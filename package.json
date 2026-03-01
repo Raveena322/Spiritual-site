@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "Spiritual Katha Booking - run backend and frontend together",
   "private": true,
+  "dependencies": {
+    "express": "^4.18.2"
+  },
   "scripts": {
     "start": "concurrently -n backend,frontend -c blue,green \"npm run start:backend\" \"npm run start:frontend\"",
     "start:backend": "cd backend && node server.js",
-    "start:frontend": "cd frontend && npm start"
+    "start:frontend": "cd frontend && npm start",
+    "build": "cd backend && npm install && cd ../frontend && npm install && npm run build"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
