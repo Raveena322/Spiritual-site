@@ -22,15 +22,25 @@ try {
   });
 }
 
-// Resolve frontend build dir (Vercel may run from different cwd/__dirname)
-const possibleRoots = [__dirname, process.cwd(), path.join(__dirname, '..')];
+// Resolve frontend build dir (Vercel: process.cwd()/build after copy step; else frontend/build)
+const possibleRoots = [
+  process.cwd(),
+  __dirname,
+  path.join(__dirname, '..'),
+  path.join(process.cwd(), '..'),
+  path.join(__dirname, '..', '..'),
+];
 let frontendBuild = null;
+const pathsToTry = ['build', 'frontend/build'];
 for (const root of possibleRoots) {
-  const candidate = path.join(root, 'frontend', 'build');
-  if (fs.existsSync(candidate) && fs.existsSync(path.join(candidate, 'index.html'))) {
-    frontendBuild = candidate;
-    break;
+  for (const sub of pathsToTry) {
+    const candidate = path.join(root, ...sub.split('/'));
+    if (fs.existsSync(candidate) && fs.existsSync(path.join(candidate, 'index.html'))) {
+      frontendBuild = candidate;
+      break;
+    }
   }
+  if (frontendBuild) break;
 }
 
 if (frontendBuild) {
