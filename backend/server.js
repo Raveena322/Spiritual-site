@@ -22,6 +22,20 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/slots', require('./routes/slots'));
 app.use('/api/bookings', require('./routes/bookings'));
 
+// API root - so GET /api returns valid JSON (fixes "Cannot GET /api" on Vercel)
+app.get('/api', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Spiritual Katha API',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth/login, /api/auth/register, /api/auth/google',
+      slots: '/api/slots',
+      bookings: '/api/bookings',
+    },
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });

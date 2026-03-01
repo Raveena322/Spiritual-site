@@ -22,14 +22,30 @@ try {
   });
 }
 
-const frontendBuild = path.join(__dirname, 'frontend', 'build');
-if (fs.existsSync(frontendBuild)) {
-  app.use(express.static(frontendBuild));
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(frontendBuild, 'index.html'));
-  });
+// Resolve frontend build dir (Vercel may run from different cwd/__dirname)
+const possibleRoots = [__dirname, process.cwd(), path.join(__dirname, '..')];
+let frontendBuild = null;
+for (const root of possibleRoots) {
+  const candidate = path.join(root, 'frontend', 'build');
+  if (fs.existsSync(candidate) && fs.existsSync(path.join(candidate, 'index.html'))) {
+    frontendBuild = candidate;
+    break;
+  }
 }
+
+if (frontendBuild) {
+  app.use(express.static(frontendBuild));
+}
+
+// SPA fallback: serve index.html for any non-API GET (so / and /login etc work)
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
+  if (frontendBuild) {
+    res.sendFile(path.join(frontendBuild, 'index.html'));
+  } else {
+    res.status(404).send('Frontend not found. Ensure Build Command is "npm run build" and frontend builds successfully.');
+  }
+});
 
 // Catch unhandled errors so the function does not crash with FUNCTION_INVOCATION_FAILED
 app.use((err, req, res, next) => {
