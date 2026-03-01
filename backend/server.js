@@ -1,10 +1,11 @@
+const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
 
-// Load env vars
-dotenv.config();
+// Load env vars from backend/.env (when running as serverless, Vercel injects env so this is optional)
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
@@ -60,7 +61,7 @@ function runReminderJob() {
 }
 
 // When run directly (e.g. node server.js), start listening and connect DB.
-// When required (e.g. Vercel serverless), only export the app.
+// When required (e.g. Vercel serverless), only export the app but still connect DB in background.
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
@@ -70,6 +71,9 @@ if (require.main === module) {
   connectDB().then(() => {
     console.log('Backend ready: MongoDB connected.');
   }).catch(() => {});
+} else {
+  // Serverless: connect DB when app is loaded so API routes can use mongoose
+  connectDB().catch(() => {});
 }
 
 module.exports = app;
