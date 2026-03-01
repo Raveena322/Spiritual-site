@@ -1,6 +1,9 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const admin = require('firebase-admin');
+
+const dbConnected = () => mongoose.connection.readyState === 1;
 
 // Initialize Firebase Admin (for Google sign-in verification)
 if (!admin.apps.length && process.env.FIREBASE_PROJECT_ID) {
@@ -19,6 +22,12 @@ const generateToken = (id) => {
 // @access  Public
 exports.register = async (req, res) => {
   try {
+    if (!dbConnected()) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database not connected. In MongoDB Atlas go to Network Access and add your IP (or 0.0.0.0/0 for testing), then try again.',
+      });
+    }
     const { name, email, password, role } = req.body;
 
     if (!password || password.length < 6) {
@@ -57,9 +66,10 @@ exports.register = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({
+    const isDbError = error.message?.includes('buffering') || error.message?.includes('connection') || error.message?.includes('connect');
+    res.status(isDbError ? 503 : 500).json({
       success: false,
-      message: error.message,
+      message: isDbError ? 'Database not connected. Add your IP in MongoDB Atlas Network Access.' : error.message,
     });
   }
 };
@@ -69,6 +79,12 @@ exports.register = async (req, res) => {
 // @access  Public
 exports.login = async (req, res) => {
   try {
+    if (!dbConnected()) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database not connected. In MongoDB Atlas go to Network Access and add your IP (or 0.0.0.0/0 for testing), then try again.',
+      });
+    }
     const { email, password } = req.body;
 
     // Validate email & password
@@ -99,7 +115,7 @@ exports.login = async (req, res) => {
     // Check if password matches
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({
+      return     res.status(401).json({
         success: false,
         message: 'Invalid credentials',
       });
@@ -116,9 +132,10 @@ exports.login = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({
+    const isDbError = error.message?.includes('buffering') || error.message?.includes('connection') || error.message?.includes('connect');
+    res.status(isDbError ? 503 : 500).json({
       success: false,
-      message: error.message,
+      message: isDbError ? 'Database not connected. Add your IP in MongoDB Atlas Network Access.' : error.message,
     });
   }
 };
@@ -128,6 +145,12 @@ exports.login = async (req, res) => {
 // @access  Public
 exports.googleLogin = async (req, res) => {
   try {
+    if (!dbConnected()) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database not connected. In MongoDB Atlas go to Network Access and add your IP (or 0.0.0.0/0 for testing), then try again.',
+      });
+    }
     const { idToken, role } = req.body;
 
     if (!idToken) {
@@ -176,9 +199,10 @@ exports.googleLogin = async (req, res) => {
         message: 'Invalid or expired Google sign-in. Please try again.',
       });
     }
-    res.status(500).json({
+    const isDbError = error.message?.includes('buffering') || error.message?.includes('connection') || error.message?.includes('connect');
+    res.status(isDbError ? 503 : 500).json({
       success: false,
-      message: error.message || 'Google sign-in failed',
+      message: isDbError ? 'Database not connected. Add your IP in MongoDB Atlas Network Access.' : (error.message || 'Google sign-in failed'),
     });
   }
 };
@@ -188,6 +212,12 @@ exports.googleLogin = async (req, res) => {
 // @access  Private
 exports.getMe = async (req, res) => {
   try {
+    if (!dbConnected()) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database not connected. Add your IP in MongoDB Atlas Network Access.',
+      });
+    }
     const user = await User.findById(req.user._id);
 
     res.status(200).json({
@@ -195,9 +225,10 @@ exports.getMe = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    res.status(500).json({
+    const isDbError = error.message?.includes('buffering') || error.message?.includes('connection');
+    res.status(isDbError ? 503 : 500).json({
       success: false,
-      message: error.message,
+      message: isDbError ? 'Database not connected. Add your IP in MongoDB Atlas Network Access.' : error.message,
     });
   }
 };

@@ -27,6 +27,12 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-3">
+            <Link
+              to="/"
+              className="px-5 py-2.5 rounded-full hover:bg-white/20 transition-all duration-300 font-semibold backdrop-blur-sm border border-white/30 hover:scale-105 hover:shadow-lg flex items-center gap-2"
+            >
+              🏠 Home
+            </Link>
             {isAuthenticated ? (
               <>
                 {isGuru ? (
@@ -81,6 +87,9 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden mt-4 pb-4 space-y-3 border-t border-white/20 pt-4 animate-slideDown">
+            <Link to="/" className="block px-4 py-3 rounded-lg hover:bg-white/10 font-semibold transition-all" onClick={() => setIsOpen(false)}>
+              🏠 Home
+            </Link>
             {isAuthenticated ? (
               <>
                 {isGuru ? (
