@@ -273,13 +273,15 @@ const Dashboard = () => {
 
       <div className="container mx-auto px-4 py-12 relative z-10">
         <div className="mb-12 animate-fadeIn space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="text-6xl drop-shadow-lg">🙏</div>
-            <div>
-              <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-pink-300 via-purple-300 to-orange-300 bg-clip-text text-transparent">
+          <div className="flex items-start gap-3">
+            <div className="text-4xl sm:text-5xl drop-shadow-lg flex-shrink-0">🙏</div>
+            <div className="min-w-0">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-pink-300 via-purple-300 to-orange-300 bg-clip-text text-transparent break-words">
                 Guru Dashboard
               </h1>
-              <p className="text-pink-200 mt-2 text-lg font-semibold">Manage your spiritual katha sessions</p>
+              <p className="text-pink-200 mt-2 text-sm sm:text-base md:text-lg font-semibold leading-snug break-words">
+                Manage your spiritual katha sessions
+              </p>
             </div>
           </div>
         </div>
