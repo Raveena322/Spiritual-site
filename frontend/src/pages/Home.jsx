@@ -159,6 +159,33 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Featured spiritual blessing */}
+      <section className="container mx-auto px-4 mb-20 relative z-20">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-pink-500 to-purple-700 p-8 md:p-12 shadow-2xl border border-white/20 backdrop-blur-sm">
+          <div className="absolute inset-0 opacity-15 pointer-events-none">
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-yellow-200 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-orange-300 rounded-full blur-3xl" />
+          </div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-10">
+            <div className="text-6xl md:text-7xl drop-shadow-2xl animate-pulse">
+              🕉️
+            </div>
+            <div className="text-center md:text-left space-y-4">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-wide">
+                आज का आशीर्वाद – Today&apos;s Blessing
+              </h2>
+              <p className="text-lg md:text-xl text-orange-50/95 leading-relaxed font-medium">
+                &quot;सर्वे भवन्तु सुखिनः, सर्वे सन्तु निरामयाः।<br />
+                सर्वे भद्राणि पश्यन्तु, मा कश्चिद् दुःखभाग् भवेत्॥&quot;
+              </p>
+              <p className="text-sm md:text-base text-yellow-100/95 font-semibold">
+                May all beings be happy, healthy and see auspiciousness. May no one suffer.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Bhagavad Gita Shlokas — rotates every 9 seconds */}
       <section className="container mx-auto px-4 mb-20 relative z-20">
         <GitaShlokas />

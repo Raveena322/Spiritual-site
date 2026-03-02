@@ -56,9 +56,9 @@ export const spiritualQuotes = [
     emoji: "🌱"
   },
   {
-    text: "The journey of a thousand miles begins with one step.",
-    author: "Lao Tzu",
-    emoji: "🚶"
+    text: "यदा यदा हि धर्मस्य ग्लानिर्भवति भारत ।\nअभ्युत्थानम् अधर्मस्य तदाऽअत्मानं सृजाम्यहम् ॥\n(Whenever righteousness declines and unrighteousness rises, I manifest Myself.)",
+    author: "Bhagavad Gita 4.7",
+    emoji: "🕉️"
   },
   {
     text: "In the end, only three things matter: how much you loved, how gently you lived, and how gracefully you let go of things not meant for you.",
