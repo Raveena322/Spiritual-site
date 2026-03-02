@@ -83,6 +83,14 @@ code {
   animation: shimmer 3s ease-in-out infinite;
 }
 
+/* On small screens, disable heavy animations to avoid flicker during fast scrolling */
+@media (max-width: 640px) {
+  .animate-fadeIn,
+  .animate-slideIn {
+    animation: none !important;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
