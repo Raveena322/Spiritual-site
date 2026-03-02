@@ -1,11 +1,8 @@
 import axios from 'axios';
 
-// Use localhost backend when app is opened from localhost; otherwise use env or relative /api
+// Always use live backend URL (Render)
 function getApiBaseUrl() {
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:5000/api';
-  }
-  return process.env.REACT_APP_API_URL || '/api';
+  return 'https://spiritual-site-backend.onrender.com/api';
 }
 
 const api = axios.create({
