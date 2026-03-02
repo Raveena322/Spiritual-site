@@ -83,14 +83,21 @@ code {
   animation: shimmer 3s ease-in-out infinite;
 }
 
-/* On small screens, disable heavy animations to avoid flicker during fast scrolling */
+/* On small screens, disable heavy animations and decorative layers to avoid flicker */
 @media (max-width: 640px) {
   .animate-fadeIn,
-  .animate-slideIn {
+  .animate-slideIn,
+  .animate-pulse,
+  .animate-bounce {
     animation: none !important;
   }
 
-  /* Soften/heavily blurred glowing circles to reduce repaints */
+  /* Hide decorative blur orbs entirely on mobile – they cause constant repaints and flicker */
+  .decorative-bg {
+    display: none !important;
+  }
+
+  /* Soften/heavily blurred glowing circles (if any remain visible) */
   .blur-3xl {
     filter: blur(20px);
   }
@@ -98,9 +105,21 @@ code {
   /* Turn off expensive backdrop blur on mobile (keep solid backgrounds instead) */
   .backdrop-blur-xl,
   .backdrop-blur-lg,
-  .backdrop-blur-md {
+  .backdrop-blur-md,
+  .backdrop-blur-sm {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+  }
+
+  /* Reduce scroll flicker: promote stable compositing layer */
+  body {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* Disable hover-scale/transform on touch to avoid scroll-triggered flicker */
+  .hover\:scale-105:active {
+    transform: none;
   }
 }
 

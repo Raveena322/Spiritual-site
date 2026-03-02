@@ -89,7 +89,7 @@ const AvailableSlots = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-black">
       {/* Animated background elements */}
-      <div className="inset-0 overflow-hidden pointer-events-none absolute md:fixed">
+      <div className="decorative-bg inset-0 overflow-hidden pointer-events-none absolute md:fixed">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full blur-3xl opacity-10 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
