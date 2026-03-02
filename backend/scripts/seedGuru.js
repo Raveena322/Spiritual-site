@@ -25,10 +25,10 @@ const seedGuru = async () => {
     await connectDB();
 
     // Check if guru already exists
-    const existingGuru = await User.findOne({ email: 'guru@example.com' });
+    const existingGuru = await User.findOne({ email: 'satsangsevasumiran@gmail.com' });
     if (existingGuru) {
       console.log('Guru account already exists!');
-      console.log('Email: guru@example.com');
+      console.log('Email: satsangsevasumiran@gmail.com');
       console.log('Password: password123');
       process.exit(0);
     }
@@ -36,14 +36,14 @@ const seedGuru = async () => {
     // Create default guru account
     const guru = await User.create({
       name: 'Swami Ji',
-      email: 'guru@example.com',
+      email: 'satsangsevasumiran@gmail.com',
       password: 'password123',
       role: 'guru',
     });
 
     console.log('✅ Default Guru account created successfully!');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('Email: guru@example.com');
+    console.log('Email: satsangsevasumiran@gmail.com');
     console.log('Password: password123');
     console.log('Role: guru');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

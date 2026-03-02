@@ -19,7 +19,7 @@ A web application for booking spiritual katha sessions with a Guru. The system a
 ### Authentication & Accounts
 - **Email/password** – Register and sign in as Guru or Devotee
 - **Google Sign-in** – Sign in with Google (account picker for choosing email)
-- **Default Guru** – Seed script creates `guru@example.com` / `password123` for quick testing
+- **Default Guru** – Seed script creates `satsangsevasumiran@gmail.com` / `password123` for quick testing
 
 ### 📅 Calendar & Booking
 - **Calendar view** – Toggle between List and Calendar on the home page; see availability by month
@@ -122,7 +122,7 @@ spiritual-site/
 │   ├── utils/
 │   │   └── emailService.js       # Email notifications (SMTP)
 │   ├── scripts/
-│   │   └── seedGuru.js           # Create default guru@example.com
+│   │   └── seedGuru.js           # Create default satsangsevasumiran@gmail.com
 │   ├── .env
 │   ├── server.js
 │   └── package.json
@@ -183,7 +183,7 @@ Then open **http://localhost:3000**. Sign in with email/password or **Sign in wi
 ```bash
 cd backend && node scripts/seedGuru.js
 ```
-Then log in with **Email:** `guru@example.com` **Password:** `password123`
+Then log in with **Email:** `satsangsevasumiran@gmail.com` **Password:** `password123`
 
 ### Backend Setup
 
@@ -235,7 +235,7 @@ The frontend will run on `http://localhost:3000`
 
 ### Default Guru Account
 Run `node scripts/seedGuru.js` from the `backend` folder to create:
-- **Email:** guru@example.com  
+- **Email:** satsangsevasumiran@gmail.com  
 - **Password:** password123  
 - **Role:** guru  
 
@@ -389,7 +389,7 @@ Or register a new account from the app’s Register page.
 
 **Database not connected:** See **FIX_DATABASE.md**. Use local MongoDB (`MONGODB_URI=mongodb://localhost:27017/spiritual-katha`) or fix Atlas Network Access and resume cluster.
 
-**Invalid email or password:** For a fresh local DB, run `cd backend && node scripts/seedGuru.js` to create `guru@example.com` / `password123`.
+**Invalid email or password:** For a fresh local DB, run `cd backend && node scripts/seedGuru.js` to create `satsangsevasumiran@gmail.com` / `password123`.
 
 ## 📄 License
 
