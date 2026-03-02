@@ -264,15 +264,15 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-black overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-black overflow-x-hidden relative">
       {/* Animated background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="inset-0 overflow-hidden pointer-events-none absolute md:fixed">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full blur-3xl opacity-10 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
 
       <div className="container mx-auto px-4 py-12 relative z-10">
-        <div className="mb-12 animate-fadeIn space-y-4">
+        <div className="mb-12 mt-2 animate-fadeIn space-y-4">
           <div className="flex items-start gap-3">
             <div className="text-4xl sm:text-5xl drop-shadow-lg flex-shrink-0">🙏</div>
             <div className="min-w-0">
