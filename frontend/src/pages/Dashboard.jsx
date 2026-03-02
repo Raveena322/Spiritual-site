@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { slotsAPI, bookingsAPI } from '../services/api';
 import BookingCard from '../components/BookingCard';
-import DailyQuote from '../components/DailyQuote';
 import { getAllStates, getDistricts, granths as importedGranths } from '../data/indianLocations';
 
 // Fallback granths list in case import fails
@@ -283,11 +282,6 @@ const Dashboard = () => {
               <p className="text-pink-200 mt-2 text-lg font-semibold">Manage your spiritual katha sessions</p>
             </div>
           </div>
-        </div>
-
-        {/* Daily Spiritual Quote */}
-        <div className="mb-16 animate-fadeIn">
-          <DailyQuote />
         </div>
 
         {/* Stats cards */}

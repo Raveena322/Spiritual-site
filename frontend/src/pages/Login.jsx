@@ -95,7 +95,7 @@ const Login = () => {
               onChange={handleChange}
               required
               className="w-full px-5 py-3.5 bg-gradient-to-br from-purple-700/30 to-pink-700/20 border-2 border-purple-400/50 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all text-white font-medium placeholder-gray-400 hover:border-pink-400/70 shadow-lg"
-              placeholder="guru@example.com"
+              placeholder="satsangsevasumiran@gmail.com"
             />
           </div>
 
@@ -116,6 +116,15 @@ const Login = () => {
               className="w-full px-5 py-3.5 bg-gradient-to-br from-purple-700/30 to-pink-700/20 border-2 border-purple-400/50 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all text-white font-medium placeholder-gray-400 hover:border-pink-400/70 shadow-lg"
               placeholder="Enter your password"
             />
+          </div>
+
+          <div className="flex justify-end">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-pink-200 hover:text-pink-100 hover:underline font-medium transition-colors"
+            >
+              Forgot password?
+            </Link>
           </div>
 
           <button

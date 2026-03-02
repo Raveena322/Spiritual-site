@@ -41,6 +41,8 @@ export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   loginWithGoogle: (idToken, role) => api.post('/auth/google', { idToken, role }),
   getMe: () => api.get('/auth/me'),
+  forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
+  resetPassword: (token, password) => api.post('/auth/reset-password', { token, password }),
 };
 
 // Slots API

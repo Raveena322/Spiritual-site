@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard';
 import Bookings from './pages/Bookings';
 import BookingConfirmation from './pages/BookingConfirmation';
 import AvailableSlots from './pages/AvailableSlots';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 const PrivateRoute = ({ children, requireGuru = false }) => {
   const { isAuthenticated, isGuru, loading } = React.useContext(AuthContext);
@@ -43,6 +45,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               path="/dashboard"
               element={

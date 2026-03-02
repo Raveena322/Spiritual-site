@@ -80,9 +80,19 @@ async function sendReminderToDevotee(booking, devoteeEmail, devoteeName) {
   });
 }
 
+async function sendPasswordResetEmail(email, name, resetUrl) {
+  const text = `Dear ${name},\n\nWe received a request to reset the password for your Spiritual Katha account.\n\nIf you made this request, please click the link below (or paste it into your browser) to set a new password:\n\n${resetUrl}\n\nThis link will expire in 1 hour.\n\nIf you did not request a password reset, you can safely ignore this email.\n\nWith regards,\nSpiritual Katha Team`;
+  await sendMail({
+    to: email,
+    subject: 'Reset your Spiritual Katha password',
+    text,
+  });
+}
+
 module.exports = {
   sendMail,
   sendBookingReceivedToGuru,
   sendBookingStatusToDevotee,
   sendReminderToDevotee,
+  sendPasswordResetEmail,
 };

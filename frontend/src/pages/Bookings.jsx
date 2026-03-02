@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { bookingsAPI } from '../services/api';
 import BookingCard from '../components/BookingCard';
-import DailyQuote from '../components/DailyQuote';
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -41,11 +40,6 @@ const Bookings = () => {
               <p className="text-pink-200 mt-2 text-lg font-semibold">Track your spiritual katha sessions</p>
             </div>
           </div>
-        </div>
-
-        {/* Daily Spiritual Quote */}
-        <div className="mb-16 animate-fadeIn">
-          <DailyQuote />
         </div>
 
         {loading ? (

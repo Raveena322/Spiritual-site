@@ -6,8 +6,10 @@ const User = require('../models/User');
 // Load env vars
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-// Connect to database
-const connectDB = async () => {
+const GURU_EMAIL = 'satsangsevasumiran@gmail.com';
+const GURU_PASSWORD = 'satsangsevasumiran@123';
+
+async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
@@ -15,46 +17,44 @@ const connectDB = async () => {
     });
     console.log('MongoDB Connected');
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('Error connecting MongoDB:', error.message);
     process.exit(1);
   }
-};
+}
 
-const seedGuru = async () => {
+async function seedGuru() {
   try {
     await connectDB();
 
-    // Check if guru already exists
-    const existingGuru = await User.findOne({ email: 'satsangsevasumiran@gmail.com' });
-    if (existingGuru) {
-      console.log('Guru account already exists!');
-      console.log('Email: satsangsevasumiran@gmail.com');
-      console.log('Password: password123');
-      process.exit(0);
+    let guru = await User.findOne({ email: GURU_EMAIL }).select('+password');
+    if (guru) {
+      // Update existing guru password & role so credentials always work
+      guru.password = GURU_PASSWORD;
+      guru.role = 'guru';
+      await guru.save();
+      console.log('Guru account already existed. Password and role updated.');
+    } else {
+      guru = await User.create({
+        name: 'Swami Ji',
+        email: GURU_EMAIL,
+        password: GURU_PASSWORD,
+        role: 'guru',
+      });
+      console.log('✅ Default Guru account created successfully!');
     }
 
-    // Create default guru account
-    const guru = await User.create({
-      name: 'Swami Ji',
-      email: 'satsangsevasumiran@gmail.com',
-      password: 'password123',
-      role: 'guru',
-    });
-
-    console.log('✅ Default Guru account created successfully!');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('Email: satsangsevasumiran@gmail.com');
-    console.log('Password: password123');
+    console.log('Email:', GURU_EMAIL);
+    console.log('Password:', GURU_PASSWORD);
     console.log('Role: guru');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('You can now login with these credentials');
-
     process.exit(0);
   } catch (error) {
-    console.error('Error creating guru:', error.message);
+    console.error('Error seeding guru:', error.message);
     process.exit(1);
   }
-};
+}
 
 seedGuru();
 
