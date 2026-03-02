@@ -264,7 +264,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-black">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-black overflow-x-hidden">
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full blur-3xl opacity-10 animate-pulse"></div>
@@ -285,7 +285,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
           <div className="bg-gradient-to-br from-slate-800/80 to-purple-800/40 rounded-2xl p-5 md:p-6 border border-purple-500/30">
             <div className="text-xs font-bold text-purple-200 uppercase tracking-wide mb-1">Total Bookings</div>
             <div className="text-2xl md:text-3xl font-black text-white">{stats.total}</div>
