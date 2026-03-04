@@ -9,8 +9,11 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// CORS: allow custom domain and localhost when FRONTEND_URL is set
+const allowedOrigins = process.env.FRONTEND_URL
+  ? [process.env.FRONTEND_URL.replace(/\/$/, ''), 'http://localhost:3000']
+  : true;
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
