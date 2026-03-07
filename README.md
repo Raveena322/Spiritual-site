@@ -2,6 +2,8 @@
 
 A web application for booking spiritual katha sessions with a Guru. The system allows Gurus (Swami ji) to manage their availability and devotees to book katha sessions.
 
+**Live site:** [https://www.satsangsevasumiran.com](https://www.satsangsevasumiran.com)
+
 ## 📋 Table of Contents
 
 - [Features](#-features)
@@ -19,7 +21,7 @@ A web application for booking spiritual katha sessions with a Guru. The system a
 ### Authentication & Accounts
 - **Email/password** – Register and sign in as Guru or Devotee
 - **Google Sign-in** – Sign in with Google (account picker for choosing email)
-- **Default Guru** – Seed script creates `satsangsevasumiran@gmail.com` / `password123` for quick testing
+- **Default Guru** – Seed script creates `satsangsevasumiran@gmail.com` / `satsangsevasumiran@123` for quick testing
 
 ### 📅 Calendar & Booking
 - **Calendar view** – Toggle between List and Calendar on the home page; see availability by month
@@ -136,8 +138,7 @@ spiritual-site/
 │   │   │   ├── BookingCard.jsx
 │   │   │   ├── SlotCard.jsx
 │   │   │   ├── AvailabilityCalendar.jsx  # Calendar view
-│   │   │   ├── GitaShlokas.jsx            # Bhagavad Gita shlokas
-│   │   │   └── DailyQuote.jsx
+│   │   │   └── GitaShlokas.jsx            # Bhagavad Gita shlokas
 │   │   ├── pages/
 │   │   │   ├── Home.jsx
 │   │   │   ├── Login.jsx
@@ -183,7 +184,7 @@ Then open **http://localhost:3000**. Sign in with email/password or **Sign in wi
 ```bash
 cd backend && node scripts/seedGuru.js
 ```
-Then log in with **Email:** `satsangsevasumiran@gmail.com` **Password:** `password123`
+Then log in with **Email:** `satsangsevasumiran@gmail.com` **Password:** `satsangsevasumiran@123`
 
 ### Backend Setup
 
@@ -204,8 +205,9 @@ MONGODB_URI=mongodb://localhost:27017/spiritual-katha
 JWT_SECRET=your-secret-key-change-this-in-production
 NODE_ENV=development
 FIREBASE_PROJECT_ID=your-firebase-project-id
+FRONTEND_URL=https://www.satsangsevasumiran.com
 ```
-For email notifications, add SMTP vars (see `backend/.env.example`). If you see "Database not connected", see **FIX_DATABASE.md**.
+For email notifications, add SMTP vars (see `backend/.env.example`). Set `FRONTEND_URL` to your frontend URL for password reset links and CORS. If you see "Database not connected", see **FIX_DATABASE.md**.
 
 4. Start the server:
 ```bash
@@ -236,7 +238,7 @@ The frontend will run on `http://localhost:3000`
 ### Default Guru Account
 Run `node scripts/seedGuru.js` from the `backend` folder to create:
 - **Email:** satsangsevasumiran@gmail.com  
-- **Password:** password123  
+- **Password:** satsangsevasumiran@123  
 - **Role:** guru  
 
 Or register a new account from the app’s Register page.
@@ -379,6 +381,12 @@ Or register a new account from the app’s Register page.
 ### Other
 - `GET /api/health` – Health check
 
+## 🌐 Deployment
+
+- **Frontend:** [https://www.satsangsevasumiran.com](https://www.satsangsevasumiran.com) (Render static site; custom domain via Namecheap)
+- **Backend API:** [https://spiritual-site-backend.onrender.com](https://spiritual-site-backend.onrender.com) (Render Node service)
+- **Database:** MongoDB Atlas. Set `MONGODB_URI` and `FRONTEND_URL` in the backend service environment on Render.
+
 ## 🔒 Security & Troubleshooting
 
 - Password hashing with bcryptjs
@@ -389,7 +397,7 @@ Or register a new account from the app’s Register page.
 
 **Database not connected:** See **FIX_DATABASE.md**. Use local MongoDB (`MONGODB_URI=mongodb://localhost:27017/spiritual-katha`) or fix Atlas Network Access and resume cluster.
 
-**Invalid email or password:** For a fresh local DB, run `cd backend && node scripts/seedGuru.js` to create `satsangsevasumiran@gmail.com` / `password123`.
+**Invalid email or password:** For a fresh local DB, run `cd backend && node scripts/seedGuru.js` to create `satsangsevasumiran@gmail.com` / `satsangsevasumiran@123`.
 
 ## 📄 License
 
